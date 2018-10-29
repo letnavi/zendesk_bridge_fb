@@ -1,0 +1,4 @@
+[zendesk]
+domain = "u_domain"
+username = "login/email"
+password = "pwd"

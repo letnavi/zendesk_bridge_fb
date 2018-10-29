@@ -2,21 +2,35 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/MEDIGO/go-zendesk/zendesk"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+
+	"github.com/BurntSushi/toml"
+	"github.com/MEDIGO/go-zendesk/zendesk"
+	"github.com/gin-gonic/gin"
 )
 
-// port for server
-const port = ":9090"
+type Config struct {
+	Domain   string
+	Username string
+	Password string
+	Port     string
+}
+
+const configFilename = "conf.toml"
 
 // Processing facebook and zendesk requests
 func main() {
 
+	// init config
+	var conf Config
+	if _, err := toml.DecodeFile(configFilename, &conf); err != nil {
+		log.Fatal(err)
+	}
+
 	// zendesk client
 	// sub-domain, email/login and password
-	client, err := zendesk.NewClient("", "", "")
+	client, err := zendesk.NewClient(conf.Domain, conf.Username, conf.Password)
 
 	// if not connect
 	if err != nil {
@@ -53,7 +67,7 @@ func main() {
 	r.PUT("/ticket", func(c *gin.Context) {
 		updateTicket(c, client)
 	})
-	r.Run(port)
+	route.Run(conf.Port)
 }
 
 func createWorkplaceComment(c *gin.Context, client zendesk.Client) {
@@ -125,7 +139,7 @@ func updateTicket(c *gin.Context, z zendesk.Client) {
 
 	id := t.ID
 
-	_, err = z.UpdateTicket(id, t)
+	_, err = z.UpdateTicket(*id, t)
 	if err != nil {
 		log.Fatal(err)
 	}
