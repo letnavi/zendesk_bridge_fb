@@ -2,3 +2,5 @@
 domain = "u_domain"
 username = "login/email"
 password = "pwd"
+port     = ":9080"
+token    = "VERIFY_TOKEN"
