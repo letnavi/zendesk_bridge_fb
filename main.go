@@ -60,7 +60,11 @@ func main() {
 
 	// add ticket
 	r.POST("/ticket", func(c *gin.Context) {
-		createTicket(c, client)
+		if req, err := toZendesk(c); err != nil {
+			log.Fatal(err)
+		} else {
+			createTicket(req, c, client)
+		}
 	})
 
 	// update ticket and/or add comment
@@ -68,6 +72,11 @@ func main() {
 		updateTicket(c, client)
 	})
 	route.Run(conf.Port)
+}
+
+// request facebook to zendesk decode
+func toZendesk(c *gin.Context) ([]byte, error) {
+	return []byte("123"), nil
 }
 
 func createWorkplaceComment(c *gin.Context, client zendesk.Client) {
@@ -99,21 +108,13 @@ func LiberalCORS(c *gin.Context) {
 // Create ticket with a set of parameters.
 // Create comments if there is one in json
 // To understand the features, see zendesk.Ticket obj
-func createTicket(c *gin.Context, z zendesk.Client) {
+func createTicket(r []byte, c *gin.Context, z zendesk.Client) {
 
 	ticketData := &zendesk.Ticket{}
-	body, err := c.GetRawData()
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	json.Unmarshal(r, &ticketData)
 
-	json.Unmarshal(body, &ticketData)
-
-	_, err = z.CreateTicket(ticketData)
-	if err != nil {
-		log.Fatal(err)
-	}
+	z.CreateTicket(ticketData)
 
 	c.JSON(200, gin.H{
 		"status": "ok",
