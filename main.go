@@ -20,14 +20,20 @@ type Config struct {
 
 const ConfigFile = "conf.toml"
 
-// Processing facebook and zendesk requests
-func main() {
+var route = gin.Default()
+var r = *route.Group("/api/v1")
+var conf Config
 
+func init() {
+	r.Use(LiberalCORS)
 	// init config
-	var conf Config
 	if _, err := toml.DecodeFile(ConfigFile, &conf); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// Processing facebook and zendesk requests
+func main() {
 
 	// zendesk client
 	// sub-domain, email/login and password
@@ -37,11 +43,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// gin route
-	route := gin.Default()
-	r := route.Group("/api/v1")
-	r.Use(LiberalCORS)
 
 	// test ping pong
 	r.GET("/ping", pong)
@@ -56,7 +57,7 @@ func main() {
 	})
 
 	// add comment for facebook
-	r.POST("/fb/comment", func(c *gin.Context) {
+	r.POST("/fb", func(c *gin.Context) {
 		createWorkplaceComment(c, client)
 	})
 
