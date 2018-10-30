@@ -90,7 +90,7 @@ func toZendesk(c *gin.Context) ([]byte, error) {
 
 	json.Unmarshal(body, &feed)
 
-	return feed, nil
+	return []byte("123"), nil
 }
 
 func createWorkplaceComment(c *gin.Context, client zendesk.Client) {
