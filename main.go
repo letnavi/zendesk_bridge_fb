@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -53,9 +54,6 @@ func main() {
 	r.GET("/fb", func(c *gin.Context) {
 		Verify(conf.Token, c.Writer, c.Request)
 	})
-	r.POST("/fb", func(c *gin.Context) {
-		Messages(c.Writer, c.Request)
-	})
 
 	// add comment for facebook
 	r.POST("/fb/comment", func(c *gin.Context) {
@@ -84,7 +82,15 @@ func main() {
 
 // request facebook to zendesk decode
 func toZendesk(c *gin.Context) ([]byte, error) {
-	return []byte("123"), nil
+	body, err := c.GetRawData()
+	if err != nil {
+		log.Fatal(err)
+	}
+	feed := Feed{}
+
+	json.Unmarshal(body, &feed)
+
+	return feed, nil
 }
 
 func createWorkplaceComment(c *gin.Context, client zendesk.Client) {
