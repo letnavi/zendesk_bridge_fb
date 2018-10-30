@@ -40,6 +40,8 @@ var r = *route.Group("/api/v1")
 var conf Config
 
 func init() {
+	gin.SetMode(gin.ReleaseMode)
+
 	r.Use(LiberalCORS)
 	// init config
 	if _, err := toml.DecodeFile(ConfigFile, &conf); err != nil {
