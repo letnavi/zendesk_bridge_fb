@@ -73,7 +73,7 @@ func main() {
 	// add ticket
 	r.POST("/ticket", func(c *gin.Context) {
 		if req, err := toZendesk(c); err != nil {
-			log.Fatal(err)
+			log.Fatal("что то пошло не так")
 		} else {
 			createTicket(req, c, client)
 		}
